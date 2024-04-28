@@ -1,2 +1,2 @@
 # docs-generator
-Create your own docmentation with ease!
+Create your own documentation with ease!
