@@ -75,7 +75,12 @@ fn printLine() !void {
 fn makeDir(cwd: fs.Dir) !void {
     const folderName: *const [4:0]u8 = "docs";
     try cwd.makeDir(folderName);
-    std.debug.print("Created folder: {s}\n", .{folderName});
+    std.debug.print("📁 Created folder: {s}\n", .{folderName});
+}
+
+fn makePath(cwd: fs.Dir, path: []const u8) !void {
+    try cwd.makePath(path);
+    std.debug.print("📁 Created folder: {s}\n", .{path});
 }
 
 fn createFile(cwd: fs.Dir, fileName: []const u8, content: [1][]const u8) !void {
@@ -84,7 +89,7 @@ fn createFile(cwd: fs.Dir, fileName: []const u8, content: [1][]const u8) !void {
     for (content) |line| {
         try file.writeAll(line);
     }
-    std.debug.print("Created file: {s}\n", .{fileName});
+    std.debug.print("🗃 Created file: {s}\n", .{fileName});
 }
 
 fn about(image: [1][]const u8) !void {
@@ -103,9 +108,18 @@ pub fn main() !void {
     try about(logo);
 
     const cwd = fs.cwd();
+    var rootDir = try cwd.openDir("./", .{});
+    defer rootDir.close();
+
     try createFile(cwd, mkdocs_yaml, mkdocs_conent);
+
+    try makePath(cwd, ".github/workflows");
+    var pipelineDir: fs.Dir = try cwd.openDir(".github/workflows", .{});
+    defer pipelineDir.close();
+    try pipelineDir.setAsCwd();
     try createFile(cwd, pipeline_yaml, pipeline_content);
 
+    try rootDir.setAsCwd();
     try makeDir(cwd);
     var newDir: fs.Dir = try cwd.openDir("docs", .{});
     defer newDir.close();
@@ -113,17 +127,17 @@ pub fn main() !void {
 
     for (&docs_files) |file| {
         try createFile(cwd, file, default_content);
-        std.debug.print("Created file: {s}\n", .{file});
+        std.debug.print("📰 Created file: {s}\n", .{file});
     }
 
     //--------- When everything is done, print the instructions ---------//
     try printLine();
-    std.debug.print("Done! Now is time to: ", .{});
+    std.debug.print("Files created successfully! 🎉\n", .{});
     try printLine();
 
-    std.debug.print("1. Create a CNAME in your DNS manager with your custom domain \n", .{});
-    std.debug.print("2. Add the custom domain to GitHub Pages \n", .{});
-    std.debug.print("3. Update the CNAME file inside the docs folder with your custom domain \n", .{});
+    std.debug.print("\n1. Create a CNAME in your DNS manager with your custom domain \n📚READ: https://developers.cloudflare.com/dns/manage-dns-records/how-to/create-dns-records/\n", .{});
+    std.debug.print("\n2. Add the custom domain to GitHub Pages \n📚READ: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site\n", .{});
+    std.debug.print("\n3. Update the CNAME file inside the docs folder with your custom domain\n", .{});
     try printLine();
     std.debug.print("You can create .md files in the docs folder and push to the repository\n", .{});
 }

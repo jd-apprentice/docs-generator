@@ -4,7 +4,8 @@ route ?= ./lib
 run: build execute
 
 clean:
-	rm mkdocs.yml documentation.yml
+	rm mkdocs.yml
+	rm -rf .github
 	rm -rf docs
 
 build: $(route)/$(out_file).zig
