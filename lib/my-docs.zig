@@ -7,7 +7,7 @@ const docs_files: [2][]const u8 = [2][]const u8{
     "index.md",
 };
 const mkdocs_yaml: *const [10:0]u8 = "mkdocs.yml";
-const pipeline_yaml: *const [6:0]u8 = "documentation.yml";
+const pipeline_yaml: *const [17:0]u8 = "documentation.yml";
 const logo = [_][]const u8{
     \\ ███▄ ▄███▓▓██   ██▓   ▓█████▄  ▒█████   ▄████▄    ██████ 
     \\ ▓██▒▀█▀ ██▒ ▒██  ██▒   ▒██▀ ██▌▒██▒  ██▒▒██▀ ▀█  ▒██    ▒ 
@@ -20,8 +20,11 @@ const logo = [_][]const u8{
     \\        ░    ░ ░           ░        ░ ░  ░ ░            ░  
     \\             ░ ░         ░               ░                 
 };
+const default_content = [_][]const u8{
+    \\
+};
 const mkdocs_conent = [_][]const u8{
-    \\ site_name: Ciber Inteligencia
+    \\ site_name: sample project
     \\ theme:
     \\     name: material
 };
@@ -75,17 +78,12 @@ fn makeDir(cwd: fs.Dir) !void {
     std.debug.print("Created folder: {s}\n", .{folderName});
 }
 
-fn writeContent(file: fs.File, content: []const u8) !void {
-    for (content) |line| {
-        try file.writeAll(line);
-        std.debug.print("{s}\n", .{line});
-    }
-}
-
 fn createFile(cwd: fs.Dir, fileName: []const u8, content: [1][]const u8) !void {
     const file = try cwd.createFile(fileName, .{});
     defer file.close();
-    try writeContent(file, content);
+    for (content) |line| {
+        try file.writeAll(line);
+    }
     std.debug.print("Created file: {s}\n", .{fileName});
 }
 
@@ -94,6 +92,10 @@ fn about(image: [1][]const u8) !void {
         std.debug.print("{s}\n", .{line});
     }
     std.debug.print("{s}", .{"Made by jd-apprentice\n"});
+    try printLine();
+    std.debug.print("{s}", .{"REQUIREMENTS: \n"});
+    std.debug.print("{s}", .{"1. Have a custom domain\n"});
+    try printLine();
 }
 
 //--------- App ---------//
@@ -101,8 +103,8 @@ pub fn main() !void {
     try about(logo);
 
     const cwd = fs.cwd();
-    try createFile(cwd, mkdocs_yaml, &mkdocs_conent);
-    try createFile(cwd, pipeline_yaml, &pipeline_content);
+    try createFile(cwd, mkdocs_yaml, mkdocs_conent);
+    try createFile(cwd, pipeline_yaml, pipeline_content);
 
     try makeDir(cwd);
     var newDir: fs.Dir = try cwd.openDir("docs", .{});
@@ -110,7 +112,7 @@ pub fn main() !void {
     try newDir.setAsCwd();
 
     for (&docs_files) |file| {
-        try createFile(cwd, file);
+        try createFile(cwd, file, default_content);
         std.debug.print("Created file: {s}\n", .{file});
     }
 
@@ -119,8 +121,9 @@ pub fn main() !void {
     std.debug.print("Done! Now is time to: ", .{});
     try printLine();
 
-    std.debug.print("1. Create a CNAME in your DNS resolver with <> \n", .{});
+    std.debug.print("1. Create a CNAME in your DNS manager with your custom domain \n", .{});
     std.debug.print("2. Add the custom domain to GitHub Pages \n", .{});
+    std.debug.print("3. Update the CNAME file inside the docs folder with your custom domain \n", .{});
     try printLine();
     std.debug.print("You can create .md files in the docs folder and push to the repository\n", .{});
 }
