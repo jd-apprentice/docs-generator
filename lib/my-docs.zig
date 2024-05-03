@@ -2,6 +2,7 @@ const std = @import("std");
 const fs = std.fs;
 
 //--------- Constants ---------//
+const app_version = "0.1.0";
 const docs_files: [2][]const u8 = [2][]const u8{
     "CNAME",
     "index.md",
@@ -103,10 +104,7 @@ fn about(image: [1][]const u8) !void {
     try printLine();
 }
 
-//--------- App ---------//
-pub fn main() !void {
-    try about(logo);
-
+fn generateFiles() !void {
     const cwd = fs.cwd();
     var rootDir = try cwd.openDir("./", .{});
     defer rootDir.close();
@@ -140,4 +138,53 @@ pub fn main() !void {
     std.debug.print("\n3. Update the CNAME file inside the docs folder with your custom domain\n", .{});
     try printLine();
     std.debug.print("You can create .md files in the docs folder and push to the repository\n", .{});
+}
+
+fn validateFiles() !void {
+    std.debug.print("TODO\n", .{});
+}
+
+fn printHelp() !void {
+    std.debug.print("Usage: my-docs --generate\n", .{});
+    std.debug.print("Usage: my-docs --validate\n", .{});
+    std.process.exit(1);
+}
+
+fn printVersion() !void {
+    std.debug.print("Version: {s}\n", .{app_version});
+}
+
+pub fn main() !void {
+    try about(logo);
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+    defer _ = gpa.deinit();
+
+    const args = try std.process.argsAlloc(allocator);
+    defer std.process.argsFree(allocator, args);
+
+    if (args.len < 2) {
+        std.debug.print("Usage: my-docs --help\n", .{});
+        std.process.exit(1);
+    }
+
+    const arg = args[1];
+    const help = "--help";
+    const generate = "--generate";
+    const version = "--version";
+    const validate = "--validate";
+
+    const isGenerate = std.mem.eql(u8, arg, generate);
+    const isHelp = std.mem.eql(u8, arg, help);
+    const isVersion = std.mem.eql(u8, arg, version);
+    const isValidate = std.mem.eql(u8, arg, validate);
+
+    if (isHelp) try printHelp();
+    if (isVersion) try printVersion();
+    if (isValidate) try validateFiles();
+    if (isGenerate) try generateFiles();
+
+    try printHelp();
+    std.process.exit(0);
 }
