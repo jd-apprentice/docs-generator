@@ -1,5 +1,7 @@
 # docs-generator
 
+![idea](idea.png)
+
 Create your own documentation with ease!
 
 ## Usage
