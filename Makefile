@@ -1,7 +1,10 @@
 out_file ?= my-docs
 route ?= ./lib
+args ?= --help
 
 run: build execute
+
+install: build move
 
 clean:
 	rm mkdocs.yml
@@ -14,4 +17,7 @@ build: $(route)/$(out_file).zig
 	rm $(out_file).o
 
 execute: $(route)/$(out_file)
-	./$(route)/$(out_file) $(args)
+	my-docs $(args)
+
+move:
+	sudo mv $(route)/$(out_file) /usr/local/bin

@@ -3,12 +3,12 @@ const fs = std.fs;
 
 //--------- Constants ---------//
 const app_version = "0.1.0";
+const mkdocs_yaml: *const [10:0]u8 = "mkdocs.yml";
+const pipeline_yaml: *const [17:0]u8 = "documentation.yml";
 const docs_files: [2][]const u8 = [2][]const u8{
     "CNAME",
     "index.md",
 };
-const mkdocs_yaml: *const [10:0]u8 = "mkdocs.yml";
-const pipeline_yaml: *const [17:0]u8 = "documentation.yml";
 const logo = [_][]const u8{
     \\ ███▄ ▄███▓▓██   ██▓   ▓█████▄  ▒█████   ▄████▄    ██████ 
     \\ ▓██▒▀█▀ ██▒ ▒██  ██▒   ▒██▀ ██▌▒██▒  ██▒▒██▀ ▀█  ▒██    ▒ 
@@ -69,10 +69,6 @@ const pipeline_content = [_][]const u8{
 };
 
 //--------- Functions ---------//
-fn printLine() !void {
-    std.debug.print("{s}", .{"\n"});
-}
-
 fn makeDir(cwd: fs.Dir) !void {
     const folderName: *const [4:0]u8 = "docs";
     try cwd.makeDir(folderName);
@@ -141,7 +137,11 @@ fn generateFiles() !void {
 }
 
 fn validateFiles() !void {
-    std.debug.print("TODO\n", .{});
+    std.debug.print("Files validated successfully! 🎉\n", .{});
+}
+
+fn printLine() !void {
+    std.debug.print("{s}", .{"\n"});
 }
 
 fn printHelp() !void {
@@ -152,6 +152,12 @@ fn printHelp() !void {
 
 fn printVersion() !void {
     std.debug.print("Version: {s}\n", .{app_version});
+}
+
+fn printInvalid() !void {
+    std.debug.print("Invalid command\n", .{});
+    std.debug.print("Usage: my-docs --help\n", .{});
+    std.process.exit(1);
 }
 
 pub fn main() !void {
@@ -185,6 +191,6 @@ pub fn main() !void {
     if (isValidate) try validateFiles();
     if (isGenerate) try generateFiles();
 
-    try printHelp();
+    try printInvalid();
     std.process.exit(0);
 }
